@@ -1,0 +1,2234 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cognex DataMan 475V — 條碼驗證解決方案</title>
+<style>
+/* ===== RESET & BASE ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --yellow: #FFD100;
+  --black: #1A1A1A;
+  --dark: #333;
+  --gray: #666;
+  --light-gray: #E8E8E8;
+  --bg: #F5F5F5;
+  --white: #FFFFFF;
+  --sidebar-w: 280px;
+  --transition: 0.35s cubic-bezier(.4,0,.2,1);
+}
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft JhengHei", "PingFang TC", sans-serif;
+  background: var(--bg);
+  color: var(--dark);
+  line-height: 1.6;
+  overflow: hidden;
+  height: 100vh;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+  position: fixed;
+  left: 0; top: 0;
+  width: var(--sidebar-w);
+  height: 100vh;
+  background: var(--black);
+  color: var(--white);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  transition: transform var(--transition);
+}
+
+.sidebar-header {
+  padding: 24px 20px 16px;
+  border-bottom: 3px solid var(--yellow);
+}
+
+.sidebar-header .brand {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--yellow);
+  letter-spacing: 2px;
+}
+
+.sidebar-header .product {
+  font-size: 0.85rem;
+  color: #aaa;
+  margin-top: 4px;
+}
+
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 0;
+}
+
+.sidebar-nav::-webkit-scrollbar { width: 4px; }
+.sidebar-nav::-webkit-scrollbar-thumb { background: #555; border-radius: 2px; }
+
+.nav-item {
+  display: block;
+  padding: 10px 20px;
+  font-size: 0.82rem;
+  color: #bbb;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: all 0.2s;
+  text-decoration: none;
+  user-select: none;
+}
+
+.nav-item:hover {
+  background: rgba(255,209,0,0.08);
+  color: var(--white);
+}
+
+.nav-item.active {
+  border-left-color: var(--yellow);
+  color: var(--yellow);
+  background: rgba(255,209,0,0.12);
+  font-weight: 600;
+}
+
+.nav-item.sub {
+  padding-left: 36px;
+  font-size: 0.78rem;
+}
+
+.sidebar-footer {
+  padding: 16px 20px;
+  border-top: 1px solid #333;
+  font-size: 0.7rem;
+  color: #666;
+}
+
+/* ===== MAIN CONTENT ===== */
+.main {
+  margin-left: var(--sidebar-w);
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+.slide {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100vh;
+  overflow-y: auto;
+  padding: 48px 60px;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  pointer-events: none;
+  background: var(--bg);
+}
+
+.slide.active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.slide::-webkit-scrollbar { width: 6px; }
+.slide::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+
+/* ===== SLIDE HEADER ===== */
+.slide-header {
+  margin-bottom: 36px;
+}
+
+.slide-unit {
+  display: inline-block;
+  background: var(--yellow);
+  color: var(--black);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 14px;
+  border-radius: 20px;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+
+.slide-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--black);
+  line-height: 1.3;
+}
+
+.slide-subtitle {
+  font-size: 1.05rem;
+  color: var(--gray);
+  margin-top: 8px;
+}
+
+/* ===== COMPONENTS ===== */
+.card {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 28px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+.card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--black);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-title .icon {
+  width: 32px;
+  height: 32px;
+  background: var(--yellow);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+
+/* ===== TABLES ===== */
+.spec-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  margin-top: 12px;
+}
+
+.spec-table th {
+  background: var(--black);
+  color: var(--yellow);
+  padding: 12px 14px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 0.5px;
+}
+
+.spec-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--light-gray);
+  vertical-align: top;
+}
+
+.spec-table tr:hover td {
+  background: rgba(255,209,0,0.04);
+}
+
+.spec-table .check {
+  color: #22A855;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.spec-table .category-row td {
+  background: #F8F8F8;
+  font-weight: 700;
+  color: var(--black);
+  font-size: 0.82rem;
+}
+
+/* ===== HIGHLIGHT / CALLOUT ===== */
+.callout {
+  border-left: 4px solid var(--yellow);
+  background: rgba(255,209,0,0.08);
+  padding: 20px 24px;
+  border-radius: 0 8px 8px 0;
+  margin: 20px 0;
+  font-size: 0.92rem;
+}
+
+.callout.important {
+  border-left-color: #E53E3E;
+  background: rgba(229,62,62,0.06);
+}
+
+.callout-quote {
+  font-style: italic;
+  font-size: 1.15rem;
+  color: var(--dark);
+  line-height: 1.7;
+}
+
+.callout-source {
+  font-size: 0.78rem;
+  color: var(--gray);
+  margin-top: 8px;
+}
+
+.stat-box {
+  text-align: center;
+  padding: 24px 16px;
+}
+
+.stat-number {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--black);
+}
+
+.stat-label {
+  font-size: 0.82rem;
+  color: var(--gray);
+  margin-top: 4px;
+}
+
+/* ===== CHECKLIST ===== */
+.checklist {
+  list-style: none;
+  padding: 0;
+}
+
+.checklist li {
+  padding: 10px 0;
+  padding-left: 32px;
+  position: relative;
+  border-bottom: 1px solid var(--light-gray);
+  font-size: 0.9rem;
+}
+
+.checklist li::before {
+  content: "\2713";
+  position: absolute;
+  left: 0;
+  color: #22A855;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+/* ===== FLOWCHART ===== */
+.flow-chain {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.flow-node {
+  width: 100%;
+  background: var(--white);
+  border-radius: 12px;
+  padding: 24px 28px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  border: 2px solid var(--light-gray);
+  position: relative;
+  text-align: center;
+}
+
+.flow-node.top {
+  background: var(--black);
+  color: var(--white);
+  border-color: var(--yellow);
+}
+
+.flow-node.top .flow-node-title { color: var(--yellow); }
+
+.flow-node.nist {
+  background: linear-gradient(135deg, #1A365D, #2B6CB0);
+  color: var(--white);
+  border-color: #2B6CB0;
+}
+
+.flow-node.nist .flow-node-title { color: #BEE3F8; }
+
+.flow-node-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--black);
+  margin-bottom: 8px;
+}
+
+.flow-node-detail {
+  font-size: 0.82rem;
+  color: var(--gray);
+  line-height: 1.5;
+}
+
+.flow-node.top .flow-node-detail { color: #ccc; }
+.flow-node.nist .flow-node-detail { color: #E2E8F0; }
+
+.flow-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px 0;
+  color: var(--yellow);
+}
+
+.flow-arrow .arrow-line {
+  width: 3px;
+  height: 28px;
+  background: var(--yellow);
+}
+
+.flow-arrow .arrow-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--dark);
+  background: rgba(255,209,0,0.15);
+  padding: 3px 12px;
+  border-radius: 10px;
+  margin: 4px 0;
+}
+
+.flow-arrow .arrow-head {
+  width: 0; height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 10px solid var(--yellow);
+}
+
+/* ===== ACCORDION ===== */
+.accordion-group {
+  margin-bottom: 24px;
+}
+
+.accordion-group-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--black);
+  padding: 12px 0 8px;
+  border-bottom: 2px solid var(--yellow);
+  margin-bottom: 8px;
+}
+
+.accordion {
+  border: 1px solid var(--light-gray);
+  border-radius: 8px;
+  margin-bottom: 6px;
+  overflow: hidden;
+  background: var(--white);
+}
+
+.accordion-header {
+  padding: 14px 18px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--dark);
+  transition: background 0.2s;
+  user-select: none;
+}
+
+.accordion-header:hover {
+  background: rgba(255,209,0,0.06);
+}
+
+.accordion-header .q-tag {
+  display: inline-block;
+  background: var(--yellow);
+  color: var(--black);
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.accordion-header .arrow-icon {
+  font-size: 0.7rem;
+  transition: transform 0.3s;
+  flex-shrink: 0;
+  color: var(--gray);
+}
+
+.accordion.open .accordion-header .arrow-icon {
+  transform: rotate(180deg);
+}
+
+.accordion-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+}
+
+.accordion-content {
+  padding: 0 18px 16px;
+  font-size: 0.85rem;
+  color: var(--gray);
+  line-height: 1.7;
+  border-top: 1px solid var(--light-gray);
+  padding-top: 14px;
+}
+
+/* ===== BADGES / TAGS ===== */
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.badge-yellow { background: var(--yellow); color: var(--black); }
+.badge-dark { background: var(--dark); color: var(--white); }
+.badge-outline { background: transparent; border: 1.5px solid var(--dark); color: var(--dark); }
+
+/* ===== COMPARISON BLOCKS ===== */
+.compare-card {
+  border-top: 4px solid var(--light-gray);
+  padding-top: 16px;
+}
+
+.compare-card.reader { border-top-color: #999; }
+.compare-card.verifier { border-top-color: var(--yellow); }
+
+/* ===== MODEL CARDS ===== */
+.model-card {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  border: 1px solid rgba(0,0,0,0.05);
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.model-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+}
+
+.model-card .model-name {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--black);
+  margin-bottom: 4px;
+}
+
+.model-card .model-sub {
+  font-size: 0.78rem;
+  color: var(--gray);
+  margin-bottom: 16px;
+}
+
+.model-spec-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--light-gray);
+  font-size: 0.82rem;
+}
+
+.model-spec-row .label { color: var(--gray); }
+.model-spec-row .value { font-weight: 600; color: var(--dark); }
+
+/* ===== STANDARDS DIAGRAM ===== */
+.std-diagram {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+  margin: 24px 0;
+}
+
+.std-node {
+  text-align: center;
+  width: 220px;
+}
+
+.std-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin: 0 auto 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--white);
+}
+
+.std-icon.s1d { background: linear-gradient(135deg, #2D3748, #4A5568); }
+.std-icon.s2d { background: linear-gradient(135deg, #744210, #C05621); }
+.std-icon.sdpm { background: linear-gradient(135deg, #1A365D, #2B6CB0); }
+
+.std-name { font-size: 0.95rem; font-weight: 700; color: var(--black); }
+.std-iso { font-size: 0.78rem; color: var(--gray); margin-top: 2px; }
+.std-desc { font-size: 0.78rem; color: var(--gray); margin-top: 6px; }
+
+/* ===== VERIFY CHECKLIST ===== */
+.verify-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--light-gray);
+}
+
+.verify-num {
+  width: 36px;
+  height: 36px;
+  background: var(--yellow);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--black);
+  flex-shrink: 0;
+}
+
+.verify-text { flex: 1; }
+.verify-q { font-weight: 600; color: var(--dark); margin-bottom: 2px; }
+
+.verify-check {
+  width: 32px;
+  height: 32px;
+  background: #22A855;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--white);
+  font-size: 1.1rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ===== INDUSTRY TABLE ===== */
+.industry-card {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  border-top: 4px solid var(--yellow);
+}
+
+.industry-card .ind-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--black);
+  margin-bottom: 6px;
+}
+
+.industry-card .ind-std {
+  font-size: 0.78rem;
+  color: var(--gray);
+  margin-bottom: 12px;
+}
+
+.industry-card ul {
+  padding-left: 18px;
+  font-size: 0.85rem;
+  color: var(--dark);
+}
+
+.industry-card ul li { margin-bottom: 6px; }
+
+/* ===== CTA ===== */
+.cta-section {
+  background: var(--black);
+  border-radius: 16px;
+  padding: 48px;
+  text-align: center;
+  color: var(--white);
+  margin-top: 32px;
+}
+
+.cta-section h3 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--yellow);
+  margin-bottom: 16px;
+}
+
+.cta-steps {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-top: 24px;
+}
+
+.cta-step {
+  text-align: center;
+}
+
+.cta-step-num {
+  width: 44px;
+  height: 44px;
+  background: var(--yellow);
+  color: var(--black);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.2rem;
+  margin: 0 auto 10px;
+}
+
+.cta-step-text {
+  font-size: 0.88rem;
+  color: #ccc;
+}
+
+/* ===== NAVIGATION ARROWS ===== */
+.nav-arrows {
+  position: fixed;
+  bottom: 28px;
+  right: 40px;
+  display: flex;
+  gap: 8px;
+  z-index: 200;
+}
+
+.nav-btn {
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: var(--black);
+  color: var(--white);
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, transform 0.15s;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.nav-btn:hover {
+  background: var(--yellow);
+  color: var(--black);
+  transform: scale(1.08);
+}
+
+.nav-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+  transform: none;
+}
+
+.slide-counter {
+  position: fixed;
+  bottom: 36px;
+  right: 140px;
+  font-size: 0.78rem;
+  color: var(--gray);
+  z-index: 200;
+}
+
+/* ===== MOBILE TOGGLE ===== */
+.menu-toggle {
+  display: none;
+  position: fixed;
+  top: 16px; left: 16px;
+  z-index: 300;
+  width: 40px; height: 40px;
+  background: var(--black);
+  border: none;
+  border-radius: 8px;
+  color: var(--yellow);
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+/* ===== COMPARISON VISUAL (Unit 2) ===== */
+.vs-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 28px 0;
+  font-size: 0.82rem;
+  color: var(--gray);
+}
+
+.vs-divider::before, .vs-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--light-gray);
+}
+
+.vs-badge {
+  background: var(--black);
+  color: var(--yellow);
+  padding: 6px 20px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.82rem;
+  letter-spacing: 1px;
+}
+
+/* ===== SOFTWARE FEATURES ===== */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.feature-item {
+  background: var(--white);
+  border-radius: 10px;
+  padding: 20px;
+  border: 1px solid var(--light-gray);
+  transition: border-color 0.2s;
+}
+
+.feature-item:hover { border-color: var(--yellow); }
+
+.feature-item .f-icon {
+  width: 40px; height: 40px;
+  background: rgba(255,209,0,0.15);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  margin-bottom: 12px;
+}
+
+.feature-item .f-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--black);
+  margin-bottom: 4px;
+}
+
+.feature-item .f-desc {
+  font-size: 0.8rem;
+  color: var(--gray);
+  line-height: 1.5;
+}
+
+/* ===== PRINT ===== */
+@media print {
+  .sidebar, .nav-arrows, .slide-counter, .menu-toggle { display: none !important; }
+  .main { margin-left: 0; }
+  .slide {
+    position: relative;
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+    page-break-after: always;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .main { margin-left: 0; }
+  .slide { padding: 32px 24px; }
+  .menu-toggle { display: flex; align-items: center; justify-content: center; }
+  .grid-2, .grid-3, .grid-4, .feature-grid { grid-template-columns: 1fr; }
+  .cta-steps { flex-direction: column; gap: 20px; }
+  .std-diagram { flex-direction: column; align-items: center; }
+}
+
+/* ===== HELPER ===== */
+.mb-16 { margin-bottom: 16px; }
+.mb-24 { margin-bottom: 24px; }
+.mb-32 { margin-bottom: 32px; }
+.mt-24 { margin-top: 24px; }
+.text-sm { font-size: 0.85rem; }
+.text-xs { font-size: 0.78rem; }
+.text-gray { color: var(--gray); }
+.text-center { text-align: center; }
+.fw-700 { font-weight: 700; }
+.inline-list { display: flex; gap: 8px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+
+<!-- MOBILE MENU TOGGLE -->
+<button class="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="brand">COGNEX <span style="font-size:0.6em; font-weight:400;">/ 威視康有限公司</span></div>
+    <div class="product">DataMan 475V 條碼驗證器</div>
+  </div>
+  <nav class="sidebar-nav" id="sidebarNav"></nav>
+  <div class="sidebar-footer">
+    Cognex Corporation &copy; 2024<br>
+    業務簡報專用
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main" id="main">
+
+  <!-- ========== UNIT 1 ========== -->
+  <section class="slide" data-nav="1. 為什麼需要條碼驗證？">
+    <div class="slide-header">
+      <div class="slide-unit">UNIT 1</div>
+      <h1 class="slide-title">為什麼需要條碼驗證？</h1>
+      <p class="slide-subtitle">條碼掃描失敗的代價，遠比你想像的更高</p>
+    </div>
+
+    <div class="callout mb-32">
+      <div class="callout-quote">"A failure to scan can be catastrophic."</div>
+      <div class="callout-source">— Cognex Whitepaper: Barcode Verification</div>
+    </div>
+
+    <div class="grid-4 mb-32">
+      <div class="card stat-box">
+        <div class="stat-number" style="color:#E53E3E;">$$$</div>
+        <div class="stat-label">退貨與罰款<br>Chargebacks</div>
+      </div>
+      <div class="card stat-box">
+        <div class="stat-number" style="color:#C05621;">&#9888;</div>
+        <div class="stat-label">包裝報廢<br>Material Waste</div>
+      </div>
+      <div class="card stat-box">
+        <div class="stat-number" style="color:#744210;">&#8987;</div>
+        <div class="stat-label">產線停擺<br>Production Delays</div>
+      </div>
+      <div class="card stat-box">
+        <div class="stat-number" style="color:#1A365D;">&#9888;</div>
+        <div class="stat-label">法規違規風險<br>Compliance Risk</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span class="icon">&#9432;</span> 誰需要條碼驗證？</div>
+        <ul class="checklist">
+          <li>醫療器材製造商（UDI 法規要求）</li>
+          <li>製藥產業（藥品序列化追溯）</li>
+          <li>汽車零件製造商（AIAG 標準）</li>
+          <li>航太國防供應商（MIL-STD-130 UID）</li>
+          <li>零售品牌商（GS1 通路要求）</li>
+          <li>受第三方驗證機構稽核的企業</li>
+        </ul>
+      </div>
+      <div class="card" style="border: 2px solid var(--yellow);">
+        <div class="card-title"><span class="icon">&#10003;</span> 自我檢查清單：我需要條碼驗證嗎？</div>
+        <ul class="checklist">
+          <li>客戶或法規要求條碼品質等級報告？</li>
+          <li>曾因條碼品質問題被退貨或罰款？</li>
+          <li>供應鏈下游有自動掃描系統？</li>
+          <li>產品進入受監管市場（醫療/國防/零售）？</li>
+          <li>需要向稽核單位（如 SGS）提交驗證文件？</li>
+          <li>希望從源頭杜絕條碼品質問題？</li>
+        </ul>
+        <div class="callout mt-24" style="font-size:0.85rem; font-weight:600;">
+          若上述任一項為「是」，您需要的是一台條碼<strong>驗證器</strong>，而非僅是讀取器。
+        </div>
+      </div>
+    </div>
+
+    <div class="card mt-32" style="background: linear-gradient(135deg, #1A1A1A 0%, #2D2D2D 100%); color: #fff; border: none;">
+      <div class="card-title" style="color: var(--yellow); font-size: 1rem;">&#128214; 本簡報知識來源：Cognex 官方白皮書</div>
+      <p style="font-size: 0.85rem; line-height: 1.8; margin-bottom: 12px; color: #ccc;">
+        本簡報的條碼驗證知識體系，來自 Cognex Corporation 官方發行的白皮書
+        <strong style="color: #fff;">"Introduction to Barcode Verification — Improve Code Quality to Meet Industry and Application Standards"</strong>，
+        作者 Naomi Brown（Cognex 條碼驗證產品行銷經理，前 Webscan Inc. 銷售與行銷主管，Webscan 於 2016 年被 Cognex 收購）。
+      </p>
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; font-size: 0.78rem;">
+        <div style="padding: 10px; background: rgba(255,209,0,0.1); border-radius: 6px; border-left: 3px solid var(--yellow);">
+          <strong style="color: var(--yellow);">ISO 標準解析</strong><br>
+          <span style="color: #aaa;">ISO 15416 / 15415 / TR 29158 三大驗證標準的品質參數與評等方法</span>
+        </div>
+        <div style="padding: 10px; background: rgba(255,209,0,0.1); border-radius: 6px; border-left: 3px solid var(--yellow);">
+          <strong style="color: var(--yellow);">Reader vs. Verifier</strong><br>
+          <span style="color: #aaa;">讀取器與驗證器的本質差異、Data Validation / Process Control / Verification 三層比較</span>
+        </div>
+        <div style="padding: 10px; background: rgba(255,209,0,0.1); border-radius: 6px; border-left: 3px solid var(--yellow);">
+          <strong style="color: var(--yellow);">校正與追溯</strong><br>
+          <span style="color: #aaa;">Conformance Standards 校正標準件、追溯至國家標準的完整鏈條</span>
+        </div>
+      </div>
+      <p style="font-size: 0.72rem; color: #888; margin-top: 12px; margin-bottom: 0;">
+        &#128279; 白皮書原文可至 Cognex 官網 Resource Center 下載，或向威視康索取中文版
+      </p>
+    </div>
+  </section>
+
+  <!-- ========== UNIT 2 ========== -->
+  <section class="slide" data-nav="2. 讀取 vs. 驗證">
+    <div class="slide-header">
+      <div class="slide-unit">UNIT 2</div>
+      <h1 class="slide-title">讀取 vs. 驗證 — 本質差異</h1>
+      <p class="slide-subtitle">同一個條碼，兩台讀取器可能得到截然不同的結果</p>
+    </div>
+
+    <div class="grid-2 mb-32">
+      <div class="card compare-card reader">
+        <div class="card-title">條碼讀取器 Barcode Reader</div>
+        <ul style="padding-left:18px; font-size:0.88rem; line-height:2;">
+          <li>揭示條碼內的<strong>資料</strong></li>
+          <li>品質指標取決於讀取器自身設定</li>
+          <li>不同讀取器、不同結果</li>
+          <li>無標準化校正</li>
+          <li>結果<strong>不可比對、不可追溯</strong></li>
+        </ul>
+      </div>
+      <div class="card compare-card verifier" style="border: 2px solid var(--yellow);">
+        <div class="card-title"><span class="icon">&#9733;</span> 條碼驗證器 Barcode Verifier</div>
+        <ul style="padding-left:18px; font-size:0.88rem; line-height:2;">
+          <li>依<strong>國際標準</strong>評等條碼品質</li>
+          <li>標準化光學條件與校正程序</li>
+          <li>產出符合規範的<strong>合規報告</strong></li>
+          <li>結果<strong>可重現、可比對、可追溯</strong></li>
+          <li>適用於稽核、合規、品質管理</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout mb-32">
+      <strong>核心觀點：</strong>兩台不同的讀取器，對同一個條碼可能有截然不同的掃描成功率。驗證器透過標準化光學條件，消除了設備差異，確保結果具有公信力。
+    </div>
+
+    <div class="card">
+      <div class="card-title">三層比較：資料驗證 vs. 製程管控 vs. 標準驗證</div>
+      <table class="spec-table">
+        <thead>
+          <tr>
+            <th style="width:22%">項目</th>
+            <th style="width:26%">Data Validation<br>資料驗證</th>
+            <th style="width:26%">Process Control<br>製程管控</th>
+            <th style="width:26%">Verification<br>標準驗證</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="fw-700">目的</td>
+            <td>檢查資料格式正確性</td>
+            <td>監控列印品質趨勢</td>
+            <td>依 ISO 標準合規評等</td>
+          </tr>
+          <tr>
+            <td class="fw-700">條碼品質評估</td>
+            <td>不評估</td>
+            <td>評估（但犧牲校正與光源規範）</td>
+            <td>完整評估（嚴格校正與光源條件）</td>
+          </tr>
+          <tr>
+            <td class="fw-700">校正要求</td>
+            <td>無</td>
+            <td>無強制要求</td>
+            <td>每次使用前強制校正</td>
+          </tr>
+          <tr>
+            <td class="fw-700">光源條件</td>
+            <td>不限</td>
+            <td>不限</td>
+            <td>ISO 標準規定的精確角度</td>
+          </tr>
+          <tr>
+            <td class="fw-700">報告合規性</td>
+            <td style="color:#E53E3E;">&#10007; 不合規</td>
+            <td style="color:#C05621;">&#9888; 僅供內部參考</td>
+            <td style="color:#22A855;">&#10003; 合約級合規</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size: 0.7rem; color: #999; text-align: right; margin-top: 12px;">
+      &#128214; 資料來源：Cognex Whitepaper "Introduction to Barcode Verification", Figure 3 — Data Validation vs Process Control vs Verification
+    </p>
+  </section>
+
+  <!-- ========== UNIT 3.1 ========== -->
+  <section class="slide" data-nav="3. ISO 標準解析" data-nav-sub="3.1 標準總覽">
+    <div class="slide-header">
+      <div class="slide-unit">UNIT 3.1</div>
+      <h1 class="slide-title">ISO 標準解析 — 總覽</h1>
+      <p class="slide-subtitle">不同條碼類型，適用不同國際驗證標準</p>
+    </div>
+
+    <div class="std-diagram mb-32">
+      <div class="std-node">
+        <div class="std-icon s1d">1D</div>
+        <div class="std-name">一維條碼</div>
+        <div class="std-iso">ISO/IEC 15416</div>
+        <div class="std-desc">UPC、EAN、Code 128 等線性條碼</div>
+      </div>
+      <div class="std-node">
+        <div class="std-icon s2d">2D</div>
+        <div class="std-name">二維標籤碼</div>
+        <div class="std-iso">ISO/IEC 15415</div>
+        <div class="std-desc">印刷於標籤上的 Data Matrix、QR Code</div>
+      </div>
+      <div class="std-node">
+        <div class="std-icon sdpm">DPM</div>
+        <div class="std-name">直接零件標記</div>
+        <div class="std-iso">ISO/IEC TR 29158 (AIM DPM)</div>
+        <div class="std-desc">雷射雕刻、點陣打刻、化學蝕刻</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>重要觀念：</strong>選擇正確的標準是驗證的第一步。標籤上的二維碼使用 ISO 15415，而直接打刻在零件上的 DPM 碼必須使用 ISO TR 29158 進行驗證——後者允許更多光源角度，以適應複雜表面。
+    </div>
+    <p style="font-size: 0.7rem; color: #999; text-align: right; margin-top: 12px;">
+      &#128214; 資料來源：Cognex Whitepaper "Introduction to Barcode Verification", by Naomi Brown &nbsp;|&nbsp;
+      DM475VS Datasheet &nbsp;|&nbsp; Certificate of Conformity
+    </p>
+  </section>
+
+  <!-- ========== UNIT 3.2 ========== -->
+  <section class="slide" data-nav-sub="3.2 ISO 15416 (1D)">
+    <div class="slide-header">
+      <div class="slide-unit">UNIT 3.2</div>
+      <h1 class="slide-title">ISO 15416 — 一維條碼驗證</h1>
+      <p class="slide-subtitle">10 條掃描線 &#8594; 逐條評等 &#8594; 平均 = 總等級</p>
+    </div>
+
+    <div class="card mb-24">
+      <div class="card-title">驗證原理</div>
+      <p class="text-sm text-gray mb-16">驗證器沿條碼高度方向取 10 條掃描線，分別評等每一條，最終取平均值作為整體等級。評等採 A（4.0）至 F（0.0）五級制。</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">ISO 15416 評等參數</div>
+      <table class="spec-table">
+        <thead>
+          <tr>
+            <th style="width:28%">參數</th>
+            <th>說明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="fw-700">Minimum Reflectance<br>最低反射率</td><td>黑條是否足夠「暗」？確保條碼與背景有足夠對比</td></tr>
+          <tr><td class="fw-700">Edge Contrast<br>邊緣對比度</td><td>黑條與白色間隔之間的反射率差異</td></tr>
+          <tr><td class="fw-700">Modulation<br>調變度</td><td>局部對比變化是否均勻？偵測不均勻印刷</td></tr>
+          <tr><td class="fw-700">Decode<br>可解碼性</td><td>標準演算法能否成功解讀？（Pass / Fail）</td></tr>
+          <tr><td class="fw-700">Defects<br>缺陷</td><td>印刷瑕疵、髒污、多餘標記</td></tr>
+          <tr><td class="fw-700">Decodability<br>解碼裕度</td><td>條/空寬度與理想值的偏差程度</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ========== UNIT 3.3 ========== -->
+  <section class="slide" data-nav-sub="3.3 ISO 15415 (2D)">
+    <div class="slide-header">
+      <div class="slide-unit">UNIT 3.3</div>
+      <h1 class="slide-title">ISO 15415 — 二維標籤碼驗證</h1>
+      <p class="slide-subtitle">8 項參數，最低等級 = 整體等級（木桶原則）</p>
+    </div>
+
+    <div class="callout important mb-24">
+      <strong>木桶原則：</strong>二維碼的整體等級取決於所有參數中的<strong>最低等級</strong>。一項不合格，整體即不合格。
+    </div>
+
+    <div class="card">
+      <div class="card-title">ISO 15415 八大評等參數</div>
+      <div class="grid-2" style="margin-top:16px;">
+        <div>
+          <table class="spec-table">
+            <tbody>
+              <tr><td class="fw-700" style="width:40%">Symbol Contrast</td><td>符號對比度 — 最亮與最暗區域的差異</td></tr>
+              <tr><td class="fw-700">Modulation</td><td>調變度 — 局部對比的一致性</td></tr>
+              <tr><td class="fw-700">Reflectance Margin</td><td>反射裕度 — 全域閾值的容錯空間</td></tr>
+              <tr><td class="fw-700">Fixed Pattern Damage</td><td>固定圖案損壞 — 定位圖案的完整性</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <table class="spec-table">
+            <tbody>
+              <tr><td class="fw-700" style="width:40%">Axial Non-uniformity</td><td>軸向不均勻性 — X/Y 軸的比例偏差</td></tr>
+              <tr><td class="fw-700">Grid Non-uniformity</td><td>網格不均勻性 — 模組位置偏移</td></tr>
+              <tr><td class="fw-700">Unused Error Correction</td><td>未用糾錯容量 — 糾錯碼的消耗程度</td></tr>
+              <tr><td class="fw-700">Decode</td><td>可解碼性 — 是否能成功讀取</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== UNIT 3.4 ========== -->
+  <section class="slide" data-nav-sub="3.4 ISO TR 29158 (DPM)">
+    <div class="slide-header">
+      <div class="slide-unit">UNIT 3.4</div>
+      <h1 class="slide-title">ISO/IEC TR 29158 — DPM 驗證</h1>
+      <p class="slide-subtitle">專為直接零件標記設計的驗證標準</p>
+    </div>
+
+    <div class="card mb-24">
+      <div class="card-title">與 ISO 15415 的關鍵差異</div>
+      <div class="grid-2" style="margin-top:12px;">
+        <div>
+          <h4 style="font-size:0.9rem; color:var(--black); margin-bottom:10px;">更精密的全域閾值演算法</h4>
+          <p class="text-sm text-gray">DPM 表面特性複雜（金屬、塑膠、陶瓷），ISO TR 29158 採用更精密的全域閾值計算方式，適應低對比、不均勻表面。</p>
+        </div>
+        <div>
+          <h4 style="font-size:0.9rem; color:var(--black); margin-bottom:10px;">Modulation 通常改善</h4>
+          <p class="text-sm text-gray">因閾值演算法更貼近 DPM 的光學特性，同一個 DPM 碼在 TR 29158 下的 Modulation 評分通常優於 15415。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="border: 2px solid var(--yellow);">
+      <div class="card-title"><span class="icon">&#9733;</span> 擴展光源角度 — DPM 驗證的關鍵</div>
+      <table class="spec-table">
+        <thead>
+          <tr>
+            <th>光源角度</th>
+            <th>ISO 15415（標籤）</th>
+            <th>ISO TR 29158（DPM）</th>
+            <th>適用場景</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="fw-700">30&deg;</td>
+            <td style="color:#E53E3E;">&#10007;</td>
+            <td style="color:#22A855;">&#10003;</td>
+            <td>高反射金屬表面、淺刻痕</td>
+          </tr>
+          <tr>
+            <td class="fw-700">45&deg;</td>
+            <td style="color:#22A855;">&#10003;</td>
+            <td style="color:#22A855;">&#10003;</td>
+            <td>標準表面、一般應用</td>
+          </tr>
+          <tr>
+            <td class="fw-700">90&deg;</td>
+            <td style="color:#E53E3E;">&#10007;</td>
+            <td style="color:#22A855;">&#10003;</td>
+            <td>深刻零件、粗糙表面、點陣打刻</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="callout mt-24">
+        <strong>為什麼重要？</strong> DPM 打刻在金屬、塑膠、陶瓷等材質上，表面曲率、反射率、粗糙度各異。單一光源角度無法涵蓋所有情況——TR 29158 標準正是為此而生。
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== UNIT 4.1 ========== -->
+  <section class="slide" data-nav="4. DM475V 產品總覽" data-nav-sub="4.1 三款機型">
+    <div class="slide-header">
+      <div class="slide-unit">UNIT 4.1</div>
+      <h1 class="slide-title">DataMan 475V — 三款機型</h1>
+      <p class="slide-subtitle">針對不同應用場景，選擇最適合的驗證器</p>
+    </div>
+
+    <div class="grid-3">
+      <div class="model-card">
+        <div style="font-size:2rem; margin-bottom:8px;">&#128196;</div>
+        <div class="model-name">Label</div>
+        <div class="model-sub">標籤版</div>
+        <div class="model-spec-row"><span class="label">視野</span><span class="value">80 &times; 60 mm</span></div>
+        <div class="model-spec-row"><span class="label">光源</span><span class="value">45&deg;</span></div>
+        <div class="model-spec-row"><span class="label">最小解析度</span><span class="value">6 mil (0.15mm)</span></div>
+        <div class="model-spec-row"><span class="label">適用對象</span><span class="value">印刷標籤</span></div>
+        <div class="model-spec-row"><span class="label">鏡頭</span><span class="value">12mm f/4</span></div>
+        <div class="model-spec-row"><span class="label">重量</span><span class="value">945g</span></div>
+      </div>
+      <div class="model-card" style="border: 2px solid var(--yellow);">
+        <div style="font-size:2rem; margin-bottom:8px;">&#9881;</div>
+        <div class="model-name">DPM</div>
+        <div class="model-sub">直接零件標記版</div>
+        <div class="model-spec-row"><span class="label">視野</span><span class="value">35 &times; 29 mm</span></div>
+        <div class="model-spec-row"><span class="label">光源</span><span class="value">30&deg;/45&deg;/90&deg;</span></div>
+        <div class="model-spec-row"><span class="label">最小解析度</span><span class="value">3.75 mil (0.095mm)</span></div>
+        <div class="model-spec-row"><span class="label">適用對象</span><span class="value">DPM / 標籤</span></div>
+        <div class="model-spec-row"><span class="label">鏡頭</span><span class="value">35mm f/4</span></div>
+        <div class="model-spec-row"><span class="label">重量</span><span class="value">1002.7g</span></div>
+      </div>
+      <div class="model-card">
+        <div style="font-size:2rem; margin-bottom:8px;">&#128300;</div>
+        <div class="model-name">HD</div>
+        <div class="model-sub">高解析度版</div>
+        <div class="model-spec-row"><span class="label">視野</span><span class="value">11 &times; 9 mm</span></div>
+        <div class="model-spec-row"><span class="label">光源</span><span class="value">30&deg;/45&deg;/90&deg;</span></div>
+        <div class="model-spec-row"><span class="label">最小解析度</span><span class="value">1 mil (0.025mm)</span></div>
+        <div class="model-spec-row"><span class="label">適用對象</span><span class="value">微型碼 / DPM</span></div>
+        <div class="model-spec-row"><span class="label">鏡頭</span><span class="value">75mm f/4</span></div>
+        <div class="model-spec-row"><span class="label">重量</span><span class="value">2245g</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== UNIT 4.2 ========== -->
+  <section class="slide" data-nav-sub="4.2 完整規格表">
+    <div class="slide-header">
+      <div class="slide-unit">UNIT 4.2</div>
+      <h1 class="slide-title">完整技術規格比較</h1>
+      <p class="slide-subtitle">DataMan 475V 三款機型詳細規格</p>
+    </div>
+
+    <div class="card" style="overflow-x:auto;">
+      <table class="spec-table">
+        <thead>
+          <tr>
+            <th style="width:26%">規格項目</th>
+            <th style="width:24.6%">Label 標籤版</th>
+            <th style="width:24.6%">DPM 版</th>
+            <th style="width:24.6%">HD 高解析版</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="category-row"><td colspan="4">光學系統</td></tr>
+          <tr>
+            <td class="fw-700">光源</td>
+            <td>660nm, 45&deg;, 4-quadrant</td>
+            <td>660nm, 45&deg; 4-quad + 30&deg; 1/2/4-quad + 90&deg;</td>
+            <td>同 DPM</td>
+          </tr>
+          <tr>
+            <td class="fw-700">影像感測器</td>
+            <td colspan="3">Sony IMX264LLR, 5MP (2448&times;2048), 2/3" CMOS, Global Shutter, 3.45&mu;m pixels</td>
+          </tr>
+          <tr>
+            <td class="fw-700">鏡頭</td>
+            <td>12mm f/4</td>
+            <td>35mm f/4</td>
+            <td>75mm f/4</td>
+          </tr>
+          <tr>
+            <td class="fw-700">視野 (FOV)</td>
+            <td>80 &times; 60 mm</td>
+            <td>35 &times; 29 mm</td>
+            <td>11 &times; 9 mm</td>
+          </tr>
+          <tr>
+            <td class="fw-700">工作距離</td>
+            <td>60 mm</td>
+            <td>41mm (含側光) / 71mm (不含)</td>
+            <td>同 DPM</td>
+          </tr>
+          <tr>
+            <td class="fw-700">景深 (DOF)</td>
+            <td>&plusmn;3 mm</td>
+            <td>5mil: &plusmn;1.5mm, 15mil: &plusmn;2.5mm</td>
+            <td>1mil: &plusmn;0.2mm, 4mil: &plusmn;0.8mm</td>
+          </tr>
+          <tr>
+            <td class="fw-700">最小 X-dimension</td>
+            <td>6 mil (0.15mm)</td>
+            <td>3.75 mil (0.095mm)</td>
+            <td>1 mil (0.025mm)</td>
+          </tr>
+          <tr>
+            <td class="fw-700">共面性</td>
+            <td>&plusmn;3&deg;</td>
+            <td>&plusmn;2&deg;</td>
+            <td>&plusmn;0.1&deg;</td>
+          </tr>
+
+          <tr class="category-row"><td colspan="4">條碼支援</td></tr>
+          <tr>
+            <td class="fw-700">1D 條碼</td>
+            <td>UPC/EAN, Code 128, ITF-14, I25, Code 39, Code 93, Codabar</td>
+            <td>UPC/EAN, Code 128, Code 39</td>
+            <td>同 DPM</td>
+          </tr>
+          <tr>
+            <td class="fw-700">2D 條碼</td>
+            <td>DataMatrix, QR, Micro QR, PDF417</td>
+            <td>DataMatrix, QR, Micro QR</td>
+            <td>同 DPM</td>
+          </tr>
+          <tr>
+            <td class="fw-700">驗證速度</td>
+            <td>1D &amp; 2D: 4 秒/碼</td>
+            <td>2D: 4 秒/碼</td>
+            <td>依條件而異</td>
+          </tr>
+
+          <tr class="category-row"><td colspan="4">物理規格</td></tr>
+          <tr>
+            <td class="fw-700">驗證器重量</td>
+            <td>945 g</td>
+            <td>1002.7 g</td>
+            <td>2245 g</td>
+          </tr>
+          <tr>
+            <td class="fw-700">支架重量</td>
+            <td colspan="3">6191.5 g</td>
+          </tr>
+          <tr>
+            <td class="fw-700">驗證器尺寸</td>
+            <td>185&times;185&times;175 mm</td>
+            <td>286&times;145&times;193 mm</td>
+            <td>360&times;145&times;193 mm</td>
+          </tr>
+          <tr>
+            <td class="fw-700">防護等級</td>
+            <td>IP67</td>
+            <td>IP65</td>
+            <td>IP65</td>
+          </tr>
+
+          <tr class="category-row"><td colspan="4">通訊與電力</td></tr>
+          <tr>
+            <td class="fw-700">通訊介面</td>
+            <td colspan="3">Ethernet</td>
+          </tr>
+          <tr>
+            <td class="fw-700">供電</td>
+            <td colspan="3">24VDC &plusmn;10%, 最大 1.5A (峰值 36W)</td>
+          </tr>
+
+          <tr class="category-row"><td colspan="4">認證與標準</td></tr>
+          <tr>
+            <td class="fw-700">硬體認證</td>
+            <td colspan="3">CE, TUV, FCC, KC</td>
+          </tr>
+          <tr>
+            <td class="fw-700">驗證標準</td>
+            <td colspan="3">ISO 15415, 15416, TR 29158, 15426-1, 15426-2</td>
+          </tr>
+          <tr>
+            <td class="fw-700">應用標準</td>
+            <td colspan="3">GS1, MIL-STD-130 UID, UDI, HIBCC, ISO 15434, Russian Crypto-Code, Custom</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ========== UNIT 4.3 ========== -->
+  <section class="slide" data-nav-sub="4.3 機型選擇指南">
+    <div class="slide-header">
+      <div class="slide-unit">UNIT 4.3</div>
+      <h1 class="slide-title">機型選擇指南</h1>
+      <p class="slide-subtitle">根據您的應用場景，選擇最適合的機型</p>
+    </div>
+
+    <div class="card mb-24">
+      <div class="card-title">應用場景 vs. 適用機型</div>
+      <table class="spec-table">
+        <thead>
+          <tr>
+            <th style="width:46%">應用場景</th>
+            <th class="text-center" style="width:18%">Label</th>
+            <th class="text-center" style="width:18%">DPM</th>
+            <th class="text-center" style="width:18%">HD</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>印刷在紙張/塑膠/霧面材質上</td>
+            <td class="text-center check">&#10003;</td>
+            <td class="text-center check">&#10003;</td>
+            <td class="text-center check">&#10003;</td>
+          </tr>
+          <tr>
+            <td>條碼寬度 &gt; 33mm</td>
+            <td class="text-center check">&#10003;</td>
+            <td class="text-center"></td>
+            <td class="text-center"></td>
+          </tr>
+          <tr>
+            <td>最小 3.5 mil 解析度</td>
+            <td class="text-center"></td>
+            <td class="text-center check">&#10003;</td>
+            <td class="text-center check">&#10003;</td>
+          </tr>
+          <tr>
+            <td>最小 1.0 mil 解析度</td>
+            <td class="text-center"></td>
+            <td class="text-center"></td>
+            <td class="text-center check">&#10003;</td>
+          </tr>
+          <tr>
+            <td>DPM（點陣打刻、雷射蝕刻）</td>
+            <td class="text-center"></td>
+            <td class="text-center check">&#10003;</td>
+            <td class="text-center check">&#10003;</td>
+          </tr>
+          <tr>
+            <td>曲面或粗糙表面</td>
+            <td class="text-center"></td>
+            <td class="text-center check">&#10003;</td>
+            <td class="text-center check">&#10003;</td>
+          </tr>
+          <tr>
+            <td>光亮反射表面</td>
+            <td class="text-center"></td>
+            <td class="text-center check">&#10003;</td>
+            <td class="text-center check">&#10003;</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <strong>選擇建議：</strong>若您的客戶主要驗證印刷標籤且條碼寬度超過 33mm，選擇 Label 版；若涉及 DPM 或需要較高解析度（3.75 mil 以下），選擇 DPM 版；僅在需要驗證 1 mil 等級微型碼時選擇 HD 版。DPM 版是涵蓋最廣泛應用場景的選擇。
+    </div>
+  </section>
+
+  <!-- ========== UNIT 4.4 ========== -->
+  <section class="slide" data-nav-sub="4.4 驗證方式比較">
+    <div class="slide-header">
+      <div class="slide-unit">UNIT 4.4</div>
+      <h1 class="slide-title">驗證方式比較</h1>
+      <p class="slide-subtitle">Offline / Inline / Software-based — 三種驗證模式</p>
+    </div>
+
+    <div class="grid-3 mb-32">
+      <div class="card" style="border-top: 4px solid var(--yellow);">
+        <div class="card-title">Offline 離線驗證</div>
+        <p class="text-sm text-gray mb-16">DM475V<strong>S</strong>（Standalone）</p>
+        <ul style="padding-left:18px; font-size:0.85rem; line-height:1.9;">
+          <li>獨立支架操作</li>
+          <li>品質實驗室 / 來料檢驗</li>
+          <li>手動放置樣品</li>
+          <li>產出完整 ISO 報告</li>
+        </ul>
+      </div>
+      <div class="card" style="border-top: 4px solid #2B6CB0;">
+        <div class="card-title">Inline 線上驗證</div>
+        <p class="text-sm text-gray mb-16">DM475V（整合版）</p>
+        <ul style="padding-left:18px; font-size:0.85rem; line-height:1.9;">
+          <li>嵌入產線自動驗證</li>
+          <li>100% 產品驗證</li>
+          <li>即時品質監控與趨勢分析</li>
+          <li>自動剔退不合格品</li>
+        </ul>
+      </div>
+      <div class="card" style="border-top: 4px solid #999;">
+        <div class="card-title">Software-based 軟體驗證</div>
+        <p class="text-sm text-gray mb-16">SBG（Software-Based Grading）</p>
+        <ul style="padding-left:18px; font-size:0.85rem; line-height:1.9;">
+          <li>使用工業讀取器硬體</li>
+          <li>相同驗證演算法</li>
+          <li>非 ISO 標準光學</li>
+          <li>適合參考性品質監控</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout" style="border-left-color:#2B6CB0;">
+      <strong>升級路徑：</strong>DM475V<strong>S</strong>（離線版）可透過軟體授權金鑰直接升級為 DM475V（線上版），無需更換硬體。先以離線版建立品質基線，再擴展至產線 100% 驗證。
+    </div>
+  </section>
+
+  <!-- ========== UNIT 5.1 ========== -->
+  <section class="slide" data-nav="5. 校正追溯鏈" data-nav-sub="5.1 追溯鏈圖">
+    <div class="slide-header">
+      <div class="slide-unit">UNIT 5 &mdash; 信任核心</div>
+      <h1 class="slide-title">校正追溯鏈</h1>
+      <p class="slide-subtitle">從您的條碼驗證結果到 NIST 國家標準 — 每一環都可追溯</p>
+    </div>
+
+    <div class="flow-chain">
+      <div class="flow-node top">
+        <div class="flow-node-title">您的條碼驗證結果</div>
+        <div class="flow-node-detail">ISO 合規等級報告，具公信力</div>
+      </div>
+      <div class="flow-arrow">
+        <div class="arrow-head" style="transform:rotate(180deg);"></div>
+        <div class="arrow-line"></div>
+        <div class="arrow-label">校正驗證</div>
+        <div class="arrow-line"></div>
+        <div class="arrow-head"></div>
+      </div>
+      <div class="flow-node" style="border-color:var(--yellow);">
+        <div class="flow-node-title">DM475V 驗證器</div>
+        <div class="flow-node-detail">每次使用前，以校正片執行 1D + 2D 雙重校正</div>
+      </div>
+      <div class="flow-arrow">
+        <div class="arrow-head" style="transform:rotate(180deg);"></div>
+        <div class="arrow-line"></div>
+        <div class="arrow-label">校準查核</div>
+        <div class="arrow-line"></div>
+        <div class="arrow-head"></div>
+      </div>
+      <div class="flow-node">
+        <div class="flow-node-title">Calibration Card（序列化校正標準件）</div>
+        <div class="flow-node-detail" style="text-align:left; margin-top:8px;">
+          &bull; S/N: 191271111 &nbsp;&bull; 校正日期: 16 MAY 2019<br>
+          &bull; 1D Master (UPC): A000861<br>
+          &bull; 2D Master (Data Matrix): 3969
+        </div>
+      </div>
+      <div class="flow-arrow">
+        <div class="arrow-head" style="transform:rotate(180deg);"></div>
+        <div class="arrow-line"></div>
+        <div class="arrow-label">第三方製造與驗證</div>
+        <div class="arrow-line"></div>
+        <div class="arrow-head"></div>
+      </div>
+      <div class="flow-node" style="border-color:#C05621;">
+        <div class="flow-node-title" style="color:#C05621;">GS1 Certified Calibration Conformance Standards</div>
+        <div class="flow-node-detail" style="text-align:left; margin-top:8px;">
+          &bull; 依 ISO 15426-1 / 15426-2 精密製造<br>
+          &bull; 第三方認證（非 Cognex 自行驗證）
+        </div>
+      </div>
+      <div class="flow-arrow">
+        <div class="arrow-head" style="transform:rotate(180deg);"></div>
+        <div class="arrow-line"></div>
+        <div class="arrow-label">國家標準追溯</div>
+        <div class="arrow-line"></div>
+        <div class="arrow-head"></div>
+      </div>
+      <div class="flow-node nist">
+        <div class="flow-node-title">NIST / NRC</div>
+        <div class="flow-node-detail">美國國家標準暨技術研究院 / 加拿大國家研究委員會</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== UNIT 5.2 ========== -->
+  <section class="slide" data-nav-sub="5.2 合規證書">
+    <div class="slide-header">
+      <div class="slide-unit">UNIT 5.2</div>
+      <h1 class="slide-title">Certificate of Conformity</h1>
+      <p class="slide-subtitle">Cognex 官方合規聲明</p>
+    </div>
+
+    <div class="grid-2">
+      <div class="card" style="border: 2px solid var(--yellow);">
+        <div class="card-title"><span class="icon">&#128220;</span> 合規標準清單</div>
+        <p class="text-sm text-gray mb-16">Cognex Corporation 正式聲明 DM475V / DM475VS 符合以下標準：</p>
+        <ul class="checklist">
+          <li>ISO/IEC 15415:2011 — 二維碼品質</li>
+          <li>ISO/IEC 15416:2016 — 一維碼品質</li>
+          <li>ISO/IEC TR 29158:2011 &amp; 2020 — DPM 品質</li>
+          <li>ISO/IEC 15426-1:2006 — 一維校正標準</li>
+          <li>ISO/IEC 15426-2:2015 — 二維校正標準</li>
+          <li>GS1 General Specifications, Jan 2020</li>
+          <li>MIL-STD-130N (Chg 1) — 美軍 UID 標準</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="icon">&#9998;</span> 簽署資訊</div>
+        <div style="padding: 20px 0;">
+          <div style="font-size:0.85rem; color:var(--gray); margin-bottom:20px;">
+            <strong style="color:var(--dark);">簽署人：</strong>Courtney Audy<br>
+            <strong style="color:var(--dark);">職稱：</strong>Senior Quality Engineer<br>
+            <strong style="color:var(--dark);">機構：</strong>Cognex Corporation
+          </div>
+          <div style="border-top: 1px solid var(--light-gray); padding-top:16px;">
+            <div class="inline-list mb-16">
+              <span class="badge badge-dark">CE</span>
+              <span class="badge badge-outline">TUV</span>
+              <span class="badge badge-outline">FCC</span>
+              <span class="badge badge-outline">KC</span>
+            </div>
+            <p class="text-xs text-gray">Declaration of Conformity 可依需求提供完整文件副本。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== UNIT 5.3 ========== -->
+  <section class="slide" data-nav-sub="5.3 校正片細節">
+    <div class="slide-header">
+      <div class="slide-unit">UNIT 5.3</div>
+      <h1 class="slide-title">Calibration Card 細節</h1>
+      <p class="slide-subtitle">每次驗證前的雙重校正程序</p>
+    </div>
+
+    <div class="grid-2 mb-24">
+      <div class="card">
+        <div class="card-title"><span class="icon">2D</span> 二維校正</div>
+        <p class="text-sm">使用 GS1 US 2D Judge 標準</p>
+        <p class="text-sm text-gray">Data Matrix Master symbols</p>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="icon">1D</span> 一維校正</div>
+        <p class="text-sm">使用 GS1 US 1D Judge 標準</p>
+        <p class="text-sm text-gray">UPC Master symbols</p>
+      </div>
+    </div>
+
+    <div class="callout important mb-24">
+      <strong>為何需要分別校正？</strong> 1D 與 2D 條碼的量測方法論根本不同——1D 使用掃描線剖面法，2D 使用影像分析法。兩者必須使用各自的校正標準件。
+    </div>
+
+    <div class="card mb-24">
+      <div class="card-title">校正片管理規範</div>
+      <table class="spec-table">
+        <tbody>
+          <tr><td class="fw-700" style="width:30%">製造環境</td><td>溫度 60&ndash;75&deg;F (15&ndash;24&deg;C)，濕度 0&ndash;50%，控制環境精密製造</td></tr>
+          <tr><td class="fw-700">有效期限</td><td>出廠後 <strong>4 年</strong>，或初次使用後 <strong>2 年</strong>（取較早到期者）</td></tr>
+          <tr><td class="fw-700">序號追溯</td><td>每張校正片附獨立序號（如 S/N: 191271111），含 1D Master (S/N: A000861) 及 2D Master (S/N: 3969) 追溯序號</td></tr>
+          <tr><td class="fw-700">校正頻率</td><td>每次使用設備前強制校正</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout" style="background: rgba(255,209,0,0.12); border-left-color: var(--black);">
+      <strong style="font-size:1rem;">&#9888; 關鍵事實</strong><br>
+      <span style="font-size:0.92rem;">校正片<strong>並非 Cognex 自行製造與驗證</strong>。它使用序列化的 GS1 Certified Conformance Standards，由第三方精密製造，追溯路徑通往 NIST/NRC 國家標準。這確保了獨立性與公信力。</span>
+    </div>
+  </section>
+
+  <!-- ========== UNIT 5.4 ========== -->
+  <section class="slide" data-nav-sub="5.4 五個驗證問題">
+    <div class="slide-header">
+      <div class="slide-unit">UNIT 5.4</div>
+      <h1 class="slide-title">五個問題驗證你的驗證器</h1>
+      <p class="slide-subtitle">Is My Verifier a Verifier? — 來自 Cognex 白皮書的自我檢查</p>
+    </div>
+
+    <div class="card">
+      <div class="verify-item">
+        <div class="verify-num">1</div>
+        <div class="verify-text">
+          <div class="verify-q">是否內建校正程序？</div>
+          <div class="text-sm text-gray">每次使用前以序列化校正標準件進行 1D + 2D 雙重校正</div>
+        </div>
+        <div class="verify-check">&#10003;</div>
+      </div>
+      <div class="verify-item">
+        <div class="verify-num">2</div>
+        <div class="verify-text">
+          <div class="verify-q">是否具備 ISO 標準規定的精確照明位置？</div>
+          <div class="text-sm text-gray">45&deg;（標籤版）/ 30&deg;+45&deg;+90&deg;（DPM/HD 版），完全符合 ISO 規範</div>
+        </div>
+        <div class="verify-check">&#10003;</div>
+      </div>
+      <div class="verify-item">
+        <div class="verify-num">3</div>
+        <div class="verify-text">
+          <div class="verify-q">是否產出含等級與光學配置的報告？</div>
+          <div class="text-sm text-gray">自動生成 PDF/HTML 報告，含各項參數等級、光源角度、校正狀態</div>
+        </div>
+        <div class="verify-check">&#10003;</div>
+      </div>
+      <div class="verify-item">
+        <div class="verify-num">4</div>
+        <div class="verify-text">
+          <div class="verify-q">是否驗證條碼內資料格式正確性？</div>
+          <div class="text-sm text-gray">內建 GS1、UDI、MIL-STD-130 等應用標準的資料格式檢查</div>
+        </div>
+        <div class="verify-check">&#10003;</div>
+      </div>
+      <div class="verify-item" style="border-bottom:none;">
+        <div class="verify-num">5</div>
+        <div class="verify-text">
+          <div class="verify-q">是否產生可重複的結果？</div>
+          <div class="text-sm text-gray">標準化光學條件 + 固定支架 + 校正追溯 = 結果可重現、可比對</div>
+        </div>
+        <div class="verify-check">&#10003;</div>
+      </div>
+    </div>
+
+    <div class="callout mt-24" style="border-left-color:#22A855; background:rgba(34,168,85,0.06);">
+      <strong>DM475V 五項全部通過。</strong>如果您評估的其他設備無法全部達成，它可能只是一台「讀取器」，而非真正的「驗證器」。
+    </div>
+  </section>
+
+  <!-- ========== UNIT 6 ========== -->
+  <section class="slide" data-nav="6. 軟體與報告">
+    <div class="slide-header">
+      <div class="slide-unit">UNIT 6</div>
+      <h1 class="slide-title">驗證軟體與報告系統</h1>
+      <p class="slide-subtitle">直覺化介面，即時診斷，自動化報告</p>
+    </div>
+
+    <div class="feature-grid mb-32">
+      <div class="feature-item">
+        <div class="f-icon">&#128202;</div>
+        <div class="f-title">即時等級顯示</div>
+        <div class="f-desc">整體等級 + 各項參數等級一目瞭然，色彩編碼快速識別問題</div>
+      </div>
+      <div class="feature-item">
+        <div class="f-icon">&#128200;</div>
+        <div class="f-title">趨勢分析</div>
+        <div class="f-desc">即時監控品質趨勢，可調式閾值警報，在問題惡化前預警</div>
+      </div>
+      <div class="feature-item">
+        <div class="f-icon">&#128196;</div>
+        <div class="f-title">自動報告輸出</div>
+        <div class="f-desc">PDF 或 HTML 格式，每次驗證或僅問題條碼自動儲存</div>
+      </div>
+      <div class="feature-item">
+        <div class="f-icon">&#128269;</div>
+        <div class="f-title">視覺化診斷工具</div>
+        <div class="f-desc">色彩編碼的問題區域標示，快速定位列印或標記缺陷</div>
+      </div>
+      <div class="feature-item">
+        <div class="f-icon">&#128218;</div>
+        <div class="f-title">內建應用標準</div>
+        <div class="f-desc">預載 GS1、UDI、MIL-STD-130 等標準，無需手動配置參數</div>
+      </div>
+      <div class="feature-item">
+        <div class="f-icon">&#9729;</div>
+        <div class="f-title">資料封存</div>
+        <div class="f-desc">驗證資料可自動封存至 FTP 伺服器或雲端儲存</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">報告輸出格式</div>
+      <div class="grid-2" style="margin-top:12px;">
+        <div style="padding:16px; background:#F8F8F8; border-radius:8px;">
+          <h4 style="font-size:0.9rem; margin-bottom:8px;">PDF 格式</h4>
+          <p class="text-sm text-gray">直接歸檔、列印、Email 發送。適合正式稽核報告。</p>
+        </div>
+        <div style="padding:16px; background:#F8F8F8; border-radius:8px;">
+          <h4 style="font-size:0.9rem; margin-bottom:8px;">HTML 格式</h4>
+          <p class="text-sm text-gray">可編輯性最高，可整合至自有報告模板或管理系統。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== UNIT 7 ========== -->
+  <section class="slide" data-nav="7. 常見問題 Q&A">
+    <div class="slide-header">
+      <div class="slide-unit">UNIT 7</div>
+      <h1 class="slide-title">客戶常見問題 Q&amp;A</h1>
+      <p class="slide-subtitle">點擊展開查看詳細回答</p>
+    </div>
+
+    <!-- 產品規格類 -->
+    <div class="accordion-group">
+      <div class="accordion-group-title">產品規格類</div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span><span class="q-tag">Q1</span>支援的條碼類型是否涵蓋全部？GS1 DataBar 有沒有？</span>
+          <span class="arrow-icon">&#9660;</span>
+        </div>
+        <div class="accordion-body"><div class="accordion-content">DM475V 標籤版支援最多條碼類型：一維（UPC/EAN、Code 128、ITF-14、I25、Code 39、Code 93、Codabar）及二維（Data Matrix ECC200、QR、Micro QR、PDF417）。DPM 及 HD 版支援 UPC/EAN、Code 128、Code 39、Data Matrix、QR、Micro QR。GS1 DataBar 需確認最新韌體版本支援狀態。</div></div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span><span class="q-tag">Q2</span>DPM 版本與標籤版本的視野範圍各是多少？</span>
+          <span class="arrow-icon">&#9660;</span>
+        </div>
+        <div class="accordion-body"><div class="accordion-content">標籤版 80&times;60mm（工作距離 60mm）、DPM 版 35&times;29mm（工作距離 41mm 含側光）、HD 版 11&times;9mm。選擇版本的關鍵在於您最常驗證的條碼尺寸和類型。</div></div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span><span class="q-tag">Q3</span>一維條碼太長超出視野怎麼辦？</span>
+          <span class="arrow-icon">&#9660;</span>
+        </div>
+        <div class="accordion-body"><div class="accordion-content">超過 DPM 版 35mm 視野的一維碼，可選用標籤版（80mm 視野）。大型條碼的可讀性問題通常較少，業界對大碼做 verify 的需求也較低。</div></div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span><span class="q-tag">Q4</span>DPM 版本為什麼視野比較小？</span>
+          <span class="arrow-icon">&#9660;</span>
+        </div>
+        <div class="accordion-body"><div class="accordion-content">DPM 通常直接打刻在產品上，尺寸不會太大，因此需要更高解析度（3.75 mil）的鏡頭來精確解析，光學設計上視野與解析度為權衡關係。</div></div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span><span class="q-tag">Q5</span>DPM 的 30/45/90 度光源什麼時候用？</span>
+          <span class="arrow-icon">&#9660;</span>
+        </div>
+        <div class="accordion-body"><div class="accordion-content">DPM 版內建三種光源角度（30&deg;/45&deg;/90&deg;），在軟體介面直接切換。不同材質（金屬、塑膠、陶瓷）和打刻方式（雷射、噴墨、針打）對光的反射特性不同。ISO TR 29158 標準特別允許多角度光源，正因 DPM 的表面特性多變。建議：每種新樣品三個角度都測試，選擇最佳成像角度作為標準條件。</div></div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span><span class="q-tag">Q6</span>驗證器能否脫離支架手持使用？</span>
+          <span class="arrow-icon">&#9660;</span>
+        </div>
+        <div class="accordion-body"><div class="accordion-content">不行。條碼「讀取」(Read) 可手持任意角度，但「驗證」(Verify) 按 ISO 標準必須在固定光學條件下進行——固定角度、固定距離、固定光源。這正是驗證結果具公信力的原因：條件一致，結果才可重現、可比對。DM475V 搭配可調式支架確保每次測試條件完全一致。</div></div>
+      </div>
+    </div>
+
+    <!-- 應用場景類 -->
+    <div class="accordion-group">
+      <div class="accordion-group-title">應用場景類</div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span><span class="q-tag">Q8</span>支架可否客製？原廠是否提供工程圖面？</span>
+          <span class="arrow-icon">&#9660;</span>
+        </div>
+        <div class="accordion-body"><div class="accordion-content">可以。原廠提供機頭完整工程圖面（含安裝孔位尺寸），客戶可依實際場景自行設計支架。關鍵要求：機頭到待測物的距離符合規格且保持穩定水平。可調式支架可容納最高 5.5 英寸組件，加延伸臂可達 17.5 英寸。</div></div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span><span class="q-tag">Q9</span>雷雕 DPM 是否 45 度光源就夠用？</span>
+          <span class="arrow-icon">&#9660;</span>
+        </div>
+        <div class="accordion-body"><div class="accordion-content">不一定。雷雕雖通常為平面，但材質反射率、雕刻深度、表面粗糙度都會影響最佳光源角度。選擇 DPM 版（含三種光源）可確保不受限於單一角度，服務範圍最廣。</div></div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span><span class="q-tag">Q10</span>能否同時驗證視野內多個條碼？</span>
+          <span class="arrow-icon">&#9660;</span>
+        </div>
+        <div class="accordion-body"><div class="accordion-content">條碼品質驗證的最佳實務是逐一驗證。每個條碼須在最佳光學條件的中心位置，邊緣可能有光學失真影響評分。逐一驗證是業界認可的標準流程。</div></div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span><span class="q-tag">Q11</span>條碼解析度的極限是多少？</span>
+          <span class="arrow-icon">&#9660;</span>
+        </div>
+        <div class="accordion-body"><div class="accordion-content">各版本最小 X 軸尺寸：標籤版 6 mil (0.15mm)、DPM 版 3.75 mil (0.095mm)、HD 版 1 mil (0.025mm)。超出視野或解析度的條碼可被讀取器「讀取」但無法進行符合 ISO 標準的「驗證」。</div></div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span><span class="q-tag">Q12</span>超出標準驗證器範圍的特殊應用怎麼處理？</span>
+          <span class="arrow-icon">&#9660;</span>
+        </div>
+        <div class="accordion-body"><div class="accordion-content">Cognex 另有工業讀取器可嵌入同一套驗證軟體（SBG），演算法完全相同但硬體光學不符 ISO 標準。適合作為「參考性驗證」，報告會明確標示非標準光學條件。正式 ISO 驗證仍需使用 DM475V。</div></div>
+      </div>
+    </div>
+
+    <!-- 報告客製類 -->
+    <div class="accordion-group">
+      <div class="accordion-group-title">報告客製類</div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span><span class="q-tag">Q13</span>報告上的品牌名稱能否移除？能否客製化？</span>
+          <span class="arrow-icon">&#9660;</span>
+        </div>
+        <div class="accordion-body"><div class="accordion-content">系統提供 PDF 和 HTML 兩種自動輸出格式。HTML 格式可編輯性最高，可整合至自有報告模板。品牌標示的客製化需與原廠確認軟體層面的可行性。</div></div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span><span class="q-tag">Q14</span>報告自動輸出格式有哪些？</span>
+          <span class="arrow-icon">&#9660;</span>
+        </div>
+        <div class="accordion-body"><div class="accordion-content">兩種：PDF（直接歸檔）和 HTML（可編輯）。針對每次驗證或僅針對問題條碼自動儲存。完整驗證資料可封存至 FTP 或雲端。</div></div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span><span class="q-tag">Q15</span>報告中各項評分欄位的數值代表什麼？為什麼有些沒有數字？</span>
+          <span class="arrow-icon">&#9660;</span>
+        </div>
+        <div class="accordion-body"><div class="accordion-content">每個驗證項目給出 Grade（A&ndash;F），部分項目同時顯示量化數值（如 Symbol Contrast 的百分比）。有些項目如 Decode 僅有 Pass/Fail，不產生數值故該欄位空白。這些都是 ISO 標準中明確定義的規則。</div></div>
+      </div>
+    </div>
+
+    <!-- 校正認證類 -->
+    <div class="accordion-group">
+      <div class="accordion-group-title">校正認證類</div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span><span class="q-tag">Q16</span>設備校正如何處理？校正片的追溯性如何證明？</span>
+          <span class="arrow-icon">&#9660;</span>
+        </div>
+        <div class="accordion-body"><div class="accordion-content">DM475V 使用 Calibration Card 進行校正。校正片使用序列化的 GS1 Certified Calibration Conformance Standards，追溯至 NIST（美國）或 NRC（加拿大）國家標準。每次使用前校正兩次（1D 和 2D 分別校正），確保量測結果準確可靠。</div></div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span><span class="q-tag">Q17</span>校正片的有效期限與更換規則？</span>
+          <span class="arrow-icon">&#9660;</span>
+        </div>
+        <div class="accordion-body"><div class="accordion-content">出廠 4 年或初次使用後 2 年，取較早到期者。每張校正片附有序號（如 S/N: 191271111）及校正日期，並含 1D Master（S/N: A000861）和 2D Master（S/N: 3969）的追溯序號。</div></div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span><span class="q-tag">Q18</span>原廠自己出的校正證書是否有公信力？第三方追溯證明？</span>
+          <span class="arrow-icon">&#9660;</span>
+        </div>
+        <div class="accordion-body"><div class="accordion-content">校正片並非 Cognex 自行製造與驗證。追溯鏈為：DM475V &rarr; Calibration Card &rarr; GS1 Certified Conformance Standards（第三方精密製造）&rarr; NIST/NRC 國家標準。校正片證書載明追溯路徑，而 Certificate of Conformity 由 Cognex 資深品質工程師簽章，明列所有合規標準。</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== UNIT 8 ========== -->
+  <section class="slide" data-nav="8. 產業應用標準">
+    <div class="slide-header">
+      <div class="slide-unit">UNIT 8</div>
+      <h1 class="slide-title">產業應用標準</h1>
+      <p class="slide-subtitle">不同產業的條碼合規要求</p>
+    </div>
+
+    <div class="grid-3 mb-32">
+      <div class="industry-card">
+        <div class="ind-title">&#9764; 醫療器材 UDI</div>
+        <div class="ind-std">FDA / GS1 / HIBCC</div>
+        <ul>
+          <li>FDA 強制要求 UDI 標示</li>
+          <li>GS1 或 HIBCC 編碼規則</li>
+          <li>批號、序號、有效期限</li>
+          <li>Data Matrix 為主要載體</li>
+          <li>品質等級需達 C 級以上</li>
+        </ul>
+      </div>
+      <div class="industry-card">
+        <div class="ind-title">&#128722; 零售 / 物流 GS1</div>
+        <div class="ind-std">GS1 General Specifications</div>
+        <ul>
+          <li>GTIN 商品註冊與編碼</li>
+          <li>資料格式標準化</li>
+          <li>列印品質驗證</li>
+          <li>通路上架的基本要求</li>
+          <li>1D + 2D 並行趨勢</li>
+        </ul>
+      </div>
+      <div class="industry-card">
+        <div class="ind-title">&#9878; 國防 UID</div>
+        <div class="ind-std">MIL-STD-130 / ISO 15434</div>
+        <ul>
+          <li>Data Matrix 為指定載體</li>
+          <li>ISO 15434 資料格式</li>
+          <li>永久性 DPM 標記</li>
+          <li>全生命週期追溯</li>
+          <li>品質等級嚴格要求</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">產業標準對照表</div>
+      <table class="spec-table">
+        <thead>
+          <tr>
+            <th style="width:22%">項目</th>
+            <th style="width:26%">國防 Defense</th>
+            <th style="width:26%">醫療 Medical</th>
+            <th style="width:26%">零售 Retail</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="fw-700">主要標準</td>
+            <td>MIL-STD-130N</td>
+            <td>FDA UDI Rule</td>
+            <td>GS1 General Specs</td>
+          </tr>
+          <tr>
+            <td class="fw-700">主要碼制</td>
+            <td>Data Matrix (DPM)</td>
+            <td>Data Matrix / GS1-128</td>
+            <td>EAN/UPC, GS1 DataMatrix</td>
+          </tr>
+          <tr>
+            <td class="fw-700">標記方式</td>
+            <td>DPM（雷射/針打）</td>
+            <td>印刷標籤 + DPM</td>
+            <td>印刷標籤</td>
+          </tr>
+          <tr>
+            <td class="fw-700">驗證標準</td>
+            <td>ISO TR 29158</td>
+            <td>ISO 15415 / TR 29158</td>
+            <td>ISO 15416 / 15415</td>
+          </tr>
+          <tr>
+            <td class="fw-700">建議機型</td>
+            <td>DPM / HD</td>
+            <td>DPM / Label</td>
+            <td>Label</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ========== UNIT 9 ========== -->
+  <section class="slide" data-nav="9. 總結與下一步">
+    <div class="slide-header">
+      <div class="slide-unit">UNIT 9</div>
+      <h1 class="slide-title">總結與下一步</h1>
+    </div>
+
+    <div class="callout mb-32" style="border-left-color:var(--black); background:rgba(26,26,26,0.04); font-size:1.05rem;">
+      <strong>Cognex 是全球唯一提供 1D + 2D + DPM 完整條碼驗證解決方案的廠商。</strong>
+    </div>
+
+    <div class="card mb-32">
+      <div class="card-title">信任建立在完整的追溯鏈上</div>
+      <div style="display:flex; align-items:center; justify-content:center; gap:16px; flex-wrap:wrap; padding:20px 0; font-size:0.85rem;">
+        <span class="badge badge-dark">您的驗證結果</span>
+        <span style="color:var(--yellow); font-weight:700;">&rarr;</span>
+        <span class="badge badge-yellow">DM475V</span>
+        <span style="color:var(--yellow); font-weight:700;">&rarr;</span>
+        <span class="badge badge-outline">Calibration Card</span>
+        <span style="color:var(--yellow); font-weight:700;">&rarr;</span>
+        <span class="badge badge-outline">GS1 Conformance Std</span>
+        <span style="color:var(--yellow); font-weight:700;">&rarr;</span>
+        <span class="badge badge-dark">NIST / NRC</span>
+      </div>
+    </div>
+
+    <div class="grid-3 mb-32">
+      <div class="card" style="text-align:center; border-top: 4px solid var(--yellow);">
+        <div style="font-size:1.5rem; margin-bottom:8px;">&#128196;</div>
+        <div class="fw-700 mb-16">合規報告</div>
+        <p class="text-sm text-gray">自動生成符合 ISO 標準的驗證報告，滿足稽核要求</p>
+      </div>
+      <div class="card" style="text-align:center; border-top: 4px solid var(--yellow);">
+        <div style="font-size:1.5rem; margin-bottom:8px;">&#128274;</div>
+        <div class="fw-700 mb-16">校正追溯</div>
+        <p class="text-sm text-gray">從設備到 NIST 國家標準，每一環節皆可追溯驗證</p>
+      </div>
+      <div class="card" style="text-align:center; border-top: 4px solid var(--yellow);">
+        <div style="font-size:1.5rem; margin-bottom:8px;">&#9989;</div>
+        <div class="fw-700 mb-16">全碼制覆蓋</div>
+        <p class="text-sm text-gray">1D + 2D + DPM，一套解決方案涵蓋所有條碼類型</p>
+      </div>
+    </div>
+
+    <div class="cta-section">
+      <h3>下一步行動</h3>
+      <p style="color:#ccc; font-size:0.92rem;">讓我們協助您建立條碼品質管理體系</p>
+      <div class="cta-steps">
+        <div class="cta-step">
+          <div class="cta-step-num">1</div>
+          <div class="cta-step-text">提供樣品<br>免費驗證測試</div>
+        </div>
+        <div class="cta-step">
+          <div class="cta-step-num">2</div>
+          <div class="cta-step-text">需求確認<br>機型與方案報價</div>
+        </div>
+        <div class="cta-step">
+          <div class="cta-step-num">3</div>
+          <div class="cta-step-text">設備安裝<br>教育訓練與支援</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center; margin-top:32px; padding-bottom:40px;">
+      <p class="text-sm text-gray">Cognex DataMan 475V Barcode Verifier &mdash; 以證據建立信任</p>
+    </div>
+  </section>
+
+</div><!-- /main -->
+
+<!-- NAVIGATION ARROWS -->
+<div class="slide-counter" id="slideCounter">1 / 1</div>
+<div class="nav-arrows">
+  <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)" aria-label="Previous">&#9664;</button>
+  <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)" aria-label="Next">&#9654;</button>
+</div>
+
+<script>
+(function() {
+  const slides = document.querySelectorAll('.slide');
+  const sidebarNav = document.getElementById('sidebarNav');
+  const counter = document.getElementById('slideCounter');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  let current = 0;
+
+  // Build sidebar navigation
+  let lastMainNav = null;
+  slides.forEach((slide, i) => {
+    const mainNav = slide.getAttribute('data-nav');
+    const subNav = slide.getAttribute('data-nav-sub');
+
+    if (mainNav) {
+      const item = document.createElement('div');
+      item.className = 'nav-item';
+      item.textContent = mainNav;
+      item.setAttribute('data-index', i);
+      item.onclick = () => goToSlide(i);
+      sidebarNav.appendChild(item);
+      lastMainNav = mainNav;
+    }
+
+    if (subNav) {
+      const item = document.createElement('div');
+      item.className = 'nav-item sub';
+      item.textContent = subNav;
+      item.setAttribute('data-index', i);
+      item.onclick = () => goToSlide(i);
+      sidebarNav.appendChild(item);
+    } else if (!mainNav && !subNav) {
+      // Slide without any nav attribute — skip in sidebar
+    }
+  });
+
+  function goToSlide(index) {
+    if (index < 0 || index >= slides.length) return;
+    slides[current].classList.remove('active');
+    current = index;
+    slides[current].classList.add('active');
+    updateUI();
+    // Close mobile sidebar
+    document.querySelector('.sidebar').classList.remove('open');
+  }
+
+  function changeSlide(dir) {
+    goToSlide(current + dir);
+  }
+  window.changeSlide = changeSlide;
+
+  function updateUI() {
+    // Counter
+    counter.textContent = (current + 1) + ' / ' + slides.length;
+
+    // Buttons
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === slides.length - 1;
+
+    // Sidebar active state
+    const navItems = sidebarNav.querySelectorAll('.nav-item');
+    navItems.forEach(item => {
+      const idx = parseInt(item.getAttribute('data-index'));
+      item.classList.toggle('active', idx === current);
+    });
+
+    // Scroll slide to top
+    slides[current].scrollTop = 0;
+  }
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    // Don't capture if user is in an input
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      changeSlide(1);
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      changeSlide(-1);
+    }
+  });
+
+  // Initialize
+  slides[0].classList.add('active');
+  updateUI();
+})();
+
+// Accordion toggle
+function toggleAccordion(header) {
+  const accordion = header.parentElement;
+  const body = accordion.querySelector('.accordion-body');
+  const isOpen = accordion.classList.contains('open');
+
+  if (isOpen) {
+    body.style.maxHeight = null;
+    accordion.classList.remove('open');
+  } else {
+    body.style.maxHeight = body.scrollHeight + 'px';
+    accordion.classList.add('open');
+  }
+}
+</script>
+</body>
+</html>
